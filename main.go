@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 // Prompt is a llm prompt
@@ -48,5 +49,33 @@ func Query(query string) string {
 }
 
 func main() {
-	fmt.Println(Query("hello world!"))
+	goja := NewGOJA()
+	const (
+		begin = "javascript"
+		end   = "```"
+	)
+	result, i := Query("generate a javascript program to sum the numbers 0 through 100"), 0
+	for {
+		index := strings.Index(result, begin)
+		if index == -1 {
+			fmt.Print(result)
+			break
+		}
+		fmt.Print(result[:index+len(begin)])
+		result = result[index+len(begin):]
+		index = strings.Index(result, end)
+		err := goja.Compile(i, []byte(result[:index]))
+		if err != nil {
+			panic(err)
+		}
+		i++
+		fmt.Print(result[:index+len(end)])
+		fmt.Println("```goja")
+		err = goja.Load()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("```")
+		result = result[index+len(end):]
+	}
 }
