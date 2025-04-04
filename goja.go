@@ -34,11 +34,23 @@ func NewGOJA() CAS {
 		log.Println(args...)
 		return goja.Undefined()
 	}
+	llama := vm.NewObject()
+	generate := func(call goja.FunctionCall) goja.Value {
+		return vm.ToValue(Query(call.Arguments[0].String()))
+	}
 	err = console.Set("log", consoleLog)
 	if err != nil {
 		panic(err)
 	}
 	err = vm.Set("console", console)
+	if err != nil {
+		panic(err)
+	}
+	err = llama.Set("generate", generate)
+	if err != nil {
+		panic(err)
+	}
+	err = vm.Set("llama", llama)
 	if err != nil {
 		panic(err)
 	}

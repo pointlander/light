@@ -54,7 +54,11 @@ func main() {
 		begin = "javascript"
 		end   = "```"
 	)
-	result, i := Query("generate a javascript program to sum the numbers 0 through 100"), 0
+	result, i := Query(`Generate markdown and javascript that reasons about the number 1337.
+ Two functions are available: console.log(string) which logs to the console and llama.generate(string) which uses a llm to generate text from a prompt.
+ Code example: 
+ console.log(llama.generate("a prompt"));
+ These are the only available functions.`), 0
 	for {
 		index := strings.Index(result, begin)
 		if index == -1 {
@@ -69,7 +73,7 @@ func main() {
 			panic(err)
 		}
 		i++
-		fmt.Print(result[:index+len(end)])
+		fmt.Println(result[:index+len(end)])
 		fmt.Println("```goja")
 		err = goja.Load()
 		if err != nil {
