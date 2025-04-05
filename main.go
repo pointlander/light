@@ -7,8 +7,10 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"embed"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -48,17 +50,26 @@ func Query(query string) string {
 	return answer
 }
 
+//go:embed prompts/*
+var Prompts embed.FS
+
 func main() {
+	file, err := Prompts.Open("prompts/1.txt")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	raw, err := io.ReadAll(file)
+	if err != nil {
+		panic(err)
+	}
+	prompt := fmt.Sprintf(string(raw), "the number 1337")
 	goja := NewGOJA()
 	const (
 		begin = "javascript"
 		end   = "```"
 	)
-	result, i := Query(`Generate markdown and javascript that reasons about the number 1337.
- Two functions are available: console.log(string) which logs to the console and llama.generate(string) which uses a llm to generate text from a prompt.
- Code example: 
- console.log(llama.generate("a prompt"));
- These are the only available functions and both of them must be used.`), 0
+	result, i := Query(prompt), 0
 	for {
 		index := strings.Index(result, begin)
 		if index == -1 {
@@ -72,7 +83,8 @@ func main() {
 		fmt.Println("```goja")
 		err := goja.Run(i, result[:index])
 		if err != nil {
-			panic(err)
+			fmt.Print("<<<")
+			fmt.Println(err)
 		}
 		i++
 		fmt.Println("```")

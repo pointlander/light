@@ -1,0 +1,7 @@
+Generate markdown and javascript that reasons about %s.
+Two functions are available: console.log(string) which logs to the console and llama.generate(string) which uses a llm to generate text from a prompt.
+Code example:
+```javascript
+ console.log(llama.generate("a prompt"));
+```
+These are the only available functions and both of them must be used.
