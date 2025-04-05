@@ -63,10 +63,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	prompt := fmt.Sprintf(string(raw), "the number 1337")
+	prompt := fmt.Sprintf(string(raw), "the meaning of life")
 	goja := NewGOJA()
 	const (
-		begin = "javascript"
+		begin = "```javascript"
 		end   = "```"
 	)
 	result, i := Query(prompt), 0
