@@ -1,25 +1,17 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 
 	"github.com/dop251/goja"
 )
 
-type CAS interface {
-	Compile(i int, algebrite []byte) error
-	Load() error
-	Run(line string) (string, error)
-}
-
 type GOJA struct {
-	vm      *goja.Runtime
-	program *goja.Program
+	vm *goja.Runtime
 }
 
-func NewGOJA() CAS {
+func NewGOJA() *GOJA {
 	vm := goja.New()
 	_, err := vm.RunString("window = {};")
 	if err != nil {
@@ -59,34 +51,14 @@ func NewGOJA() CAS {
 	}
 }
 
-func (g *GOJA) Compile(i int, algebrite []byte) error {
-	program, err := goja.Compile(fmt.Sprintf("code%d", i), string(algebrite), true)
+func (g *GOJA) Run(i int, code string) error {
+	program, err := goja.Compile(fmt.Sprintf("code%d", i), code, true)
 	if err != nil {
 		return err
 	}
-	g.program = program
-	return nil
-}
-
-func (g *GOJA) Load() error {
-	_, err := g.vm.RunProgram(g.program)
+	_, err = g.vm.RunProgram(program)
 	if err != nil {
 		return err
 	}
 	return nil
-}
-
-func (g *GOJA) Run(line string) (string, error) {
-	vm := g.vm
-	window := vm.Get("window").ToObject(vm)
-	alg := window.Get("Algebrite").ToObject(vm)
-	run, valid := goja.AssertFunction(alg.Get("run"))
-	if !valid {
-		return "", errors.New("window.Algebrite.run is not a function")
-	}
-	result, err := run(goja.Null(), vm.ToValue(line))
-	if err != nil {
-		return "", err
-	}
-	return result.String(), nil
 }

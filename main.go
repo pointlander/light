@@ -58,7 +58,7 @@ func main() {
  Two functions are available: console.log(string) which logs to the console and llama.generate(string) which uses a llm to generate text from a prompt.
  Code example: 
  console.log(llama.generate("a prompt"));
- These are the only available functions.`), 0
+ These are the only available functions and both of them must be used.`), 0
 	for {
 		index := strings.Index(result, begin)
 		if index == -1 {
@@ -68,17 +68,13 @@ func main() {
 		fmt.Print(result[:index+len(begin)])
 		result = result[index+len(begin):]
 		index = strings.Index(result, end)
-		err := goja.Compile(i, []byte(result[:index]))
+		fmt.Println(result[:index+len(end)])
+		fmt.Println("```goja")
+		err := goja.Run(i, result[:index])
 		if err != nil {
 			panic(err)
 		}
 		i++
-		fmt.Println(result[:index+len(end)])
-		fmt.Println("```goja")
-		err = goja.Load()
-		if err != nil {
-			panic(err)
-		}
 		fmt.Println("```")
 		result = result[index+len(end):]
 	}
