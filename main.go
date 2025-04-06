@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"embed"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
@@ -53,7 +54,14 @@ func Query(query string) string {
 //go:embed prompts/*
 var Prompts embed.FS
 
+var (
+	// FlagPrompt is the prompt to use
+	FlagPrompt = flag.String("prompt", "truth", "the prompt to use")
+)
+
 func main() {
+	flag.Parse()
+
 	file, err := Prompts.Open("prompts/1.txt")
 	if err != nil {
 		panic(err)
@@ -63,7 +71,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	prompt := fmt.Sprintf(string(raw), "the meaning of life")
+	prompt := fmt.Sprintf(string(raw), *FlagPrompt)
 	goja := NewGOJA()
 	const (
 		begin = "```javascript"
